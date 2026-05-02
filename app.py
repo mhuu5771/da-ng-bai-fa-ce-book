@@ -56,5 +56,6 @@ def handle_post():
         return jsonify({"status": "error", "error": f"Lỗi hệ thống: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    # Chạy trên localhost:5000
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    # Bạn có thể dùng os.environ để lấy cổng từ hệ thống nếu cần
+    
+    app.run(host='0.0.0.0', debug=True)
