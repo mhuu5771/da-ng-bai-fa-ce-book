@@ -58,4 +58,4 @@ def handle_post():
 if __name__ == '__main__':
     # Bạn có thể dùng os.environ để lấy cổng từ hệ thống nếu cần
     
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

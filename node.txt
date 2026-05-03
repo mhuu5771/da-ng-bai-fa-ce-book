@@ -32,6 +32,12 @@
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.3); border-radius: 10px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Style cho input datetime */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="p-4 md:px-10 md:py-6 min-h-screen">
@@ -77,41 +83,53 @@
                         <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Đích đến (Fanpage)</label>
                         <select id="p-select" onchange="syncAllLinks()" class="w-full premium-input rounded-xl px-4 py-3 text-[10px] font-bold cursor-pointer outline-none appearance-none"></select>
                     </div>
-                    <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5">
-                        <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Số thẻ</label>
-                        <select id="card-count" onchange="initGrid()" class="bg-transparent border-none text-[10px] font-black text-sky-400 outline-none cursor-pointer">
-                            <option value="2">02 CARDS</option>
-                            <option value="4">04 CARDS</option>
-                            <option value="6">06 CARDS</option>
-                            <option value="8">08 CARDS</option>
-                        </select>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white/5 p-3 rounded-xl border border-white/5 space-y-1">
+                            <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Số thẻ</label>
+                            <select id="card-count" onchange="initGrid()" class="w-full bg-transparent border-none text-[10px] font-black text-sky-400 outline-none cursor-pointer">
+                                <option value="2">02 CARDS</option>
+                                <option value="4">04 CARDS</option>
+                                <option value="6">06 CARDS</option>
+                                <option value="8">08 CARDS</option>
+                            </select>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-xl border border-white/5 space-y-1">
+                            <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Chế độ</label>
+                            <select id="post-mode" class="w-full bg-transparent border-none text-[10px] font-black text-indigo-400 outline-none cursor-pointer">
+                                <option value="NOW">ĐĂNG NGAY</option>
+                                <option value="SCHEDULE">HẸN GIỜ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ô Đặt lịch (Mặc định ẩn, hiện khi chọn Hẹn giờ) -->
+                    <div id="schedule-box" class="space-y-2">
+                        <label class="text-[9px] font-black text-amber-500 uppercase tracking-widest block">Thời gian phát hành (Dự kiến)</label>
+                        <input type="datetime-local" id="schedule-time" class="w-full premium-input rounded-xl px-4 py-3 text-[10px] font-bold outline-none">
                     </div>
                 </div>
             </aside>
 
             <!-- Main -->
             <main class="lg:col-span-8 flex flex-col gap-2 overflow-hidden h-[calc(100vh-140px)]">
-                <!-- Caption -->
                 <div class="glass-panel p-5 border-white/5 shrink-0">
                     <label class="text-[9px] font-black text-sky-500 uppercase tracking-widest mb-2 block">Nội dung chiến dịch</label>
                     <textarea id="caption" rows="2" class="w-full text-lg font-medium text-white outline-none bg-transparent resize-none placeholder:text-slate-700" placeholder="Nhập caption bài viết..."></textarea>
                 </div>
 
-                <!-- Vùng cuộn Thẻ -->
                 <div class="flex-1 overflow-y-auto custom-scroll pr-2">
                     <div id="card-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4"></div>
                 </div>
 
-                <!-- Nút phát hành -->
                 <button onclick="publish()" id="btn-pub" class="w-full btn-action text-white py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.4em] shrink-0 shadow-2xl mb-4">
-                    Phát hành lên mạng xã hội
+                    Xác nhận phát hành hệ thống
                 </button>
 
-                <!-- Bảng Lịch Sử -->
                 <div class="glass-panel overflow-hidden border-white/5 bg-black/40 shadow-2xl shrink-0">
                     <div class="px-6 py-3 border-b border-white/5 flex justify-between items-center bg-white/5">
                         <span class="text-[9px] font-black uppercase tracking-widest text-sky-500">Engine Terminal History</span>
-                        <span class="text-[8px] font-bold text-slate-600 uppercase">v6.8.0-PLATINUM</span>
+                        <span class="text-[8px] font-bold text-slate-600 uppercase">v6.8.5-PLATINUM</span>
                     </div>
                     <div class="max-h-[140px] overflow-y-auto no-scrollbar bg-black/20">
                         <table class="w-full text-left border-collapse">
@@ -146,18 +164,16 @@
         function addLog(msg, type, url = "#") {
             const body = document.getElementById('history-body');
             if (body.innerHTML.includes("Chưa có dữ liệu")) body.innerHTML = "";
-
             const tr = document.createElement('tr');
             tr.className = "hover:bg-white/5 transition-all group";
-            const statusStyle = type === 'success' ? 'text-sky-400 bg-sky-400/10 border-sky-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
-
+            const statusStyle = type === 'success' ? 'text-sky-400 bg-sky-400/10 border-sky-400/20' : (type === 'schedule' ? 'text-amber-400 bg-amber-400/10 border-amber-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20');
             tr.innerHTML = `
                 <td class="px-6 py-3 text-slate-500">${new Date().toLocaleTimeString()}</td>
                 <td class="px-6 py-3 text-center">
                     <span class="px-2 py-1 rounded-full border ${statusStyle} text-[8px] font-black uppercase tracking-widest inline-block">${msg}</span>
                 </td>
                 <td class="px-6 py-3 text-right">
-                    ${url !== "#" ? `<a href="${url}" target="_blank" class="inline-flex items-center gap-2 bg-sky-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase hover:bg-sky-500 transition-all shadow-lg">Xem bài viết</a>` : '<span class="text-slate-800">---</span>'}
+                    ${url !== "#" ? `<a href="${url}" target="_blank" class="inline-flex items-center gap-2 bg-sky-600 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase hover:bg-sky-500 transition-all shadow-lg">Xem chi tiết</a>` : '<span class="text-slate-800">---</span>'}
                 </td>
             `;
             body.prepend(tr);
@@ -254,8 +270,6 @@
         function updateStore(id, field, value) {
             if(!store[id]) store[id] = { title: '', link: '', cta: 'LEARN_MORE', img: null, file: null };
             store[id][field] = value;
-
-            // Tự động dán qua ô khác nếu là trường link
             if (field === 'link') {
                 const count = parseInt(document.getElementById('card-count').value);
                 for (let i = 1; i <= count; i++) {
@@ -270,13 +284,24 @@
         async function publish() {
             const sel = document.getElementById('p-select');
             if(!sel.value) return alert("Chọn Fanpage trước!");
+            
+            const mode = document.getElementById('post-mode').value;
+            const schedTime = document.getElementById('schedule-time').value;
+            let unixTime = null;
+
+            if(mode === 'SCHEDULE') {
+                if(!schedTime) return alert("Vui lòng chọn thời gian lên lịch!");
+                unixTime = Math.floor(new Date(schedTime).getTime() / 1000);
+                if(unixTime < (Date.now()/1000) + 600) return alert("Thời gian lên lịch phải cách hiện tại ít nhất 10 phút!");
+            }
+
             const pid = sel.value;
             const ptk = sel.options[sel.selectedIndex].dataset.token;
             const btn = document.getElementById('btn-pub');
             const activeIds = Object.keys(store).filter(id => store[id].file);
             if(activeIds.length < 2) return alert("Tối thiểu 2 ảnh!");
             
-            btn.innerText = "EXECUTING..."; btn.disabled = true;
+            btn.innerText = "PROCESSING..."; btn.disabled = true;
             try {
                 let cards = [];
                 for(let id of activeIds) {
@@ -284,15 +309,46 @@
                     fd.append('source', store[id].file); fd.append('published', 'false'); fd.append('access_token', ptk);
                     const photo = await fetch(`https://graph.facebook.com/${pid}/photos`, { method: 'POST', body: fd }).then(r => r.json());
                     const detail = await fetch(`https://graph.facebook.com/${photo.id}?fields=images&access_token=${ptk}`).then(r => r.json());
-                    cards.push({ media_fbid: photo.id, name: store[id].title, link: store[id].link, picture: detail.images[0].source, call_to_action: { type: store[id].cta, value: { link: store[id].link } } });
+                    cards.push({ 
+                        media_fbid: photo.id, 
+                        name: store[id].title, 
+                        link: store[id].link, 
+                        picture: detail.images[0].source, 
+                        call_to_action: { type: store[id].cta, value: { link: store[id].link } } 
+                    });
                 }
-                const res = await fetch(`https://graph.facebook.com/${pid}/feed`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: document.getElementById('caption').value, child_attachments: cards, link: cards[0].link, access_token: ptk }) }).then(r => r.json());
+
+                const postData = { 
+                    message: document.getElementById('caption').value, 
+                    child_attachments: cards, 
+                    link: cards[0].link, 
+                    access_token: ptk 
+                };
+
+                if(mode === 'SCHEDULE') {
+                    postData.published = false;
+                    postData.scheduled_publish_time = unixTime;
+                }
+
+                const res = await fetch(`https://graph.facebook.com/${pid}/feed`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(postData) 
+                }).then(r => r.json());
+
                 if(res.id) {
-                    addLog("Đăng bài thành công", "success", `https://www.facebook.com/${res.id}`);
-                    alert("Hoàn tất!");
+                    const logMsg = mode === 'SCHEDULE' ? "Đã lên lịch thành công" : "Đăng bài thành công";
+                    addLog(logMsg, mode === 'SCHEDULE' ? 'schedule' : 'success', `https://www.facebook.com/${res.id}`);
+                    alert(mode === 'SCHEDULE' ? "Đã lên lịch phát hành!" : "Đăng bài thành công!");
+                } else {
+                    throw res.error;
                 }
-            } catch(e) { addLog("Lỗi xuất bản dữ liệu", "error"); }
-            btn.innerText = "Phát hành lên mạng xã hội"; btn.disabled = false;
+            } catch(e) { 
+                console.error(e);
+                addLog("Lỗi thực thi Engine", "error"); 
+                alert("Lỗi: " + (e.message || "Không thể đăng bài"));
+            }
+            btn.innerText = "Xác nhận phát hành hệ thống"; btn.disabled = false;
         }
 
         initGrid();

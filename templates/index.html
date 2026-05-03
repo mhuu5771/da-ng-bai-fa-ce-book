@@ -96,7 +96,7 @@
                         </div>
                         <div class="bg-white/5 p-3 rounded-xl border border-white/5 space-y-1">
                             <label class="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Chế độ</label>
-                            <select id="post-mode" class="w-full bg-transparent border-none text-[10px] font-black text-indigo-400 outline-none cursor-pointer">
+                            <select id="post-mode" onchange="toggleSchedule()" class="w-full bg-transparent border-none text-[10px] font-black text-indigo-400 outline-none cursor-pointer">
                                 <option value="NOW">ĐĂNG NGAY</option>
                                 <option value="SCHEDULE">HẸN GIỜ</option>
                             </select>
@@ -159,6 +159,19 @@
 
         function generateStandardLink(pageId) {
             return /^\d+$/.test(pageId) ? `https://www.facebook.com/profile.php?id=${pageId}` : `https://www.facebook.com/${pageId}`;
+        }
+
+        function toggleSchedule() {
+            const mode = document.getElementById('post-mode').value;
+            const scheduleBox = document.getElementById('schedule-box');
+            const scheduleInput = document.getElementById('schedule-time');
+
+            if (mode === 'NOW') {
+                scheduleBox.style.display = 'none';
+                scheduleInput.value = ''; 
+            } else {
+                scheduleBox.style.display = 'block';
+            }
         }
 
         function addLog(msg, type, url = "#") {
@@ -351,7 +364,11 @@
             btn.innerText = "Xác nhận phát hành hệ thống"; btn.disabled = false;
         }
 
-        initGrid();
+        // Khởi tạo trạng thái ban đầu
+        document.addEventListener('DOMContentLoaded', () => {
+            initGrid();
+            toggleSchedule();
+        });
     </script>
 </body>
 </html>
